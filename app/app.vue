@@ -9,7 +9,6 @@ const route = useRoute()
 const router = useRouter()
 
 onMounted(() => {
-  // Load data from localStorage on mount
   const savedData = localStorage.getItem('form_data')
   if (savedData) {
     const parsed = JSON.parse(savedData)
@@ -19,7 +18,6 @@ onMounted(() => {
     phonenumber.value = parsed.phonenumber || null
   }
 
-  // Set initial step from URL
   if (route.query.step) {
     step.value = parseInt(route.query.step)
   }
@@ -34,7 +32,6 @@ watch([name, email, age, phonenumber, step], () => {
   }
   localStorage.setItem('form_data', JSON.stringify(dataToSave))
 
-  // Update URL query without page reload
   router.push({ query: { step: step.value } })
 })
 
@@ -44,25 +41,20 @@ function prevStep() { step.value-- }
 function submit() {
   alert("Form Submitted Successfully!")
   
-  // 1. Clear Local Storage
   localStorage.removeItem('form_data')
-  
-  // 2. Reset variables to original state
+
   name.value = ''
   email.value = ''
   age.value = null
   phonenumber.value = null
-  
-  // 3. Go back to Step 1
+
   step.value = 1
-  
-  // 4. Clear the URL query
+
   router.push({ query: {} })
 }
 
-// Validation Logic
 const isStep1Valid = () => name.value.length > 2
-const isStep2Valid = () => email.value.includes('@') && email.value.includes('.')
+const isStep2Valid = () => email.value.includes('@') && email.value.includes('.com')
 const isStep3Valid = () => age.value >= 18 && age.value <= 100
 const isStep4Valid = () => String(phonenumber.value || '').length === 10
 </script>
@@ -81,6 +73,7 @@ const isStep4Valid = () => String(phonenumber.value || '').length === 10
     <div v-else-if="step === 2" class="card">
       <h2>Step 2: Email Address</h2>
       <input v-model="email" type="email" placeholder="email@example.com" />
+      <p v-if="email && !isStep2Valid()" class="error">Email should contain @ and .com</p>
       <div class="actions">
         <button @click="prevStep">Back</button>
         <button :disabled="!isStep2Valid()" @click="nextStep">Next</button>
@@ -125,10 +118,10 @@ const isStep4Valid = () => String(phonenumber.value || '').length === 10
 
 <style scoped>
 .form-container { max-width: 400px; margin: 50px auto; font-family: sans-serif; }
-.card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.card { border: 1px solid #ddd; padding: 20px; background: #fff; }
 .actions { margin-top: 20px; display: flex; gap: 10px; }
 input { width: 100%; padding: 12px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-.error { color: #e74c3c; font-size: 0.8rem; margin-top: 5px; }
+.error { color: #e74c3c; font-size: 12px; margin-top: 5px; }
 .submit-btn { background-color: #42b883; color: white; border: none; padding: 10px; flex: 1; border-radius: 4px; cursor: pointer; }
 button { padding: 10px 20px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #f4f4f4; }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
